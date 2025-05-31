@@ -8,14 +8,12 @@
       box-sizing: border-box;
     }
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       margin: 0;
       padding: 2.5rem 1.5rem;
       background-color: #f4f6f9;
       color: #333;
-      /* font-size: 18px; */
       line-height: 1.6;
-      font-family: Arial, Helvetica, sans-serif;
     }
     h1 {
       text-align: center;
@@ -54,7 +52,6 @@
     }
     a {
       flex-grow: 1;
-      /* text-decoration: none; */
       color: #0066ff;
       font-size: 2.3rem;
       background: #e7f1ff;
@@ -114,11 +111,9 @@
     #contenido {
       margin-top: 2rem;
       padding: 1.5rem;
-      /* background: #fff; */
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.274);
     }
-  
   </style>
 </head>
 <body>
@@ -127,135 +122,131 @@
 
   <hr />
   <h2 class="title">Subir nueva factura</h2>
-<form id="formulario">
-  <input type="text" id="año" placeholder="Año (ej: 2025)" required />
-  <input type="text" id="mes" placeholder="Mes (ej: Junio)" required />
-  <input type="text" id="tipo" placeholder="Tipo de factura (ej: Agua)" required />
-  <input type="file" id="archivo" accept="application/pdf" required />
-  <input type="number" id="pin" placeholder="PIN de seguridad" required />
-  <button type="submit">SUBIR FACTURA</button>
-</form>
-
+  <form id="formulario">
+    <input type="text" id="año" placeholder="Año (ej: 2025)" required />
+    <input type="text" id="mes" placeholder="Mes (ej: Junio)" required />
+    <input type="text" id="tipo" placeholder="Tipo de factura (ej: Agua)" required />
+    <input type="file" id="archivo" accept="application/pdf" required />
+    <input type="number" id="pin" placeholder="PIN de seguridad" required />
+    <button type="submit">SUBIR FACTURA</button>
+  </form>
 
   <script>
-  // ⚠️ REEMPLAZÁ ESTA URL cuando tengas la de Render:
-  const BACKEND_URL = "https://backend-facturas.onrender.com";
+    const BACKEND_URL = "https://backend-facturas.onrender.com";
+    const SOCKET_URL = BACKEND_URL;
 
-  function capitalizarPrimera(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  }
-
-  document.getElementById("formulario").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const año = document.getElementById("año").value.trim();
-    let mes = document.getElementById("mes").value.trim();
-    const tipo = document.getElementById("tipo").value.trim();
-    const archivo = document.getElementById("archivo").files[0];
-    const pin = document.getElementById("pin").value.trim();
-
-    if (!año || !mes || !tipo || !archivo) {
-      alert("Por favor completa todos los campos");
-      return;
+    function capitalizarPrimera(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
 
-    mes = capitalizarPrimera(mes);
+    document.getElementById("formulario").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("year", año);
-    formData.append("month", mes);
-    formData.append("tipo", tipo);
-    formData.append("factura", archivo);
-    formData.append("pin", pin);
+      const año = document.getElementById("año").value.trim();
+      let mes = document.getElementById("mes").value.trim();
+      const tipo = document.getElementById("tipo").value.trim();
+      const archivo = document.getElementById("archivo").files[0];
+      const pin = document.getElementById("pin").value.trim();
 
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/subir`, {
-        method: "POST",
-        body: formData,
-      });
+      if (!año || !mes || !tipo || !archivo) {
+        alert("Por favor completa todos los campos");
+        return;
+      }
 
-      const data = await res.json();
-      alert(data.message);
-      location.reload();
-    } catch (error) {
-      alert("Error al subir archivo");
-    }
-  });
+      mes = capitalizarPrimera(mes);
 
-  async function cargarFacturas() {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/facturas`);
-      const data = await res.json();
+      const formData = new FormData();
+      formData.append("year", año);
+      formData.append("month", mes);
+      formData.append("tipo", tipo);
+      formData.append("factura", archivo);
+      formData.append("pin", pin);
 
-      const container = document.getElementById("contenido");
-      container.innerHTML = "";
-
-      data.forEach(({ year, months }) => {
-        const y = document.createElement("h2");
-        y.textContent = year;
-        container.appendChild(y);
-
-        months.forEach(({ month, files }) => {
-          const m = document.createElement("h3");
-          m.textContent = month;
-          container.appendChild(m);
-
-          const ul = document.createElement("ul");
-
-          files.forEach((file) => {
-            const li = document.createElement("li");
-
-            const a = document.createElement("a");
-            a.href = `${BACKEND_URL}/facturas/${year}/${month}/${file}`;
-            a.download = file;
-            a.textContent = file;
-
-            const btnEliminar = document.createElement("button");
-            btnEliminar.textContent = "Eliminar";
-            btnEliminar.title = `Eliminar ${file}`;
-            btnEliminar.onclick = async () => {
-              if (confirm(`¿Eliminar ${file}?`)) {
-                try {
-                  const res = await fetch(`${BACKEND_URL}/api/facturas`, {
-                    method: "DELETE",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ year, month, filename: file }),
-                  });
-                  const data = await res.json();
-                  alert(data.message);
-                  location.reload();
-                } catch (error) {
-                  alert("Error al eliminar archivo");
-                }
-              }
-            };
-
-            li.appendChild(a);
-            li.appendChild(btnEliminar);
-            ul.appendChild(li);
-          });
-
-          container.appendChild(ul);
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/subir`, {
+          method: "POST",
+          body: formData,
         });
-      });
-    } catch (error) {
-      console.error("Error al cargar facturas:", error);
+
+        const data = await res.json();
+        alert(data.message);
+        location.reload();
+      } catch (error) {
+        alert("Error al subir archivo");
+      }
+    });
+
+    async function cargarFacturas() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/facturas`);
+        const data = await res.json();
+
+        const container = document.getElementById("contenido");
+        container.innerHTML = "";
+
+        data.forEach(({ year, months }) => {
+          const y = document.createElement("h2");
+          y.textContent = year;
+          container.appendChild(y);
+
+          months.forEach(({ month, files }) => {
+            const m = document.createElement("h3");
+            m.textContent = month;
+            container.appendChild(m);
+
+            const ul = document.createElement("ul");
+
+            files.forEach((file) => {
+              const li = document.createElement("li");
+
+              const a = document.createElement("a");
+              a.href = `${BACKEND_URL}/facturas/${year}/${month}/${file}`;
+              a.download = file;
+              a.textContent = file;
+
+              const btnEliminar = document.createElement("button");
+              btnEliminar.textContent = "Eliminar";
+              btnEliminar.title = `Eliminar ${file}`;
+              btnEliminar.onclick = async () => {
+                if (confirm(`¿Eliminar ${file}?`)) {
+                  try {
+                    const res = await fetch(`${BACKEND_URL}/api/facturas`, {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ year, month, filename: file }),
+                    });
+                    const data = await res.json();
+                    alert(data.message);
+                    location.reload();
+                  } catch (error) {
+                    alert("Error al eliminar archivo");
+                  }
+                }
+              };
+
+              li.appendChild(a);
+              li.appendChild(btnEliminar);
+              ul.appendChild(li);
+            });
+
+            container.appendChild(ul);
+          });
+        });
+      } catch (error) {
+        console.error("Error al cargar facturas:", error);
+      }
     }
-  }
 
-  cargarFacturas();
-</script>
+    cargarFacturas();
+  </script>
 
-  <script src="/socket.io/socket.io.js"></script>
-
-<script src="https://backend-facturas.onrender.com/socket.io/socket.io.js"></script>
-<script>
-  const socket = io("https://backend-facturas.onrender.com");
-
-  socket.on("actualizar", () => {
-    console.log("Actualización recibida. Recargando...");
-    cargarFacturas(); // Recarga sin refrescar la página
-  });
-</script>
+  <script src="https://backend-facturas.onrender.com/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io(SOCKET_URL);
+    socket.on("actualizar", () => {
+      console.log("Actualización recibida. Recargando...");
+      cargarFacturas();
+    });
+  </script>
 </body>
 </html>
