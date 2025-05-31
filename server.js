@@ -39,11 +39,19 @@ app.get("/api/facturas", (req, res) => {
     const monthsPath = path.join(FACTURAS_DIR, year);
     if (!fs.existsSync(monthsPath)) return null;
 
-    const months = fs.readdirSync(monthsPath).map((month) => {
-      const filesPath = path.join(monthsPath, month);
-      const files = fs.existsSync(filesPath) ? fs.readdirSync(filesPath) : [];
-      return { month, files };
-    });
+    const MONTH_ORDER = [
+      "enero", "febrero", "marzo", "abril", "mayo", "junio",
+      "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ];
+
+    const months = fs.readdirSync(monthsPath)
+      .sort((a, b) => MONTH_ORDER.indexOf(b.toLowerCase()) - MONTH_ORDER.indexOf(a.toLowerCase()))
+      .map((month) => {
+        const filesPath = path.join(monthsPath, month);
+        const files = fs.existsSync(filesPath) ? fs.readdirSync(filesPath) : [];
+        return { month, files };
+      });
+
 
     return { year, months };
   }).filter(Boolean);
