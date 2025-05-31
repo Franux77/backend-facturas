@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Facturas Familia</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2.5rem 1.5rem;
+      background-color: #f4f6f9;
+      color: #333;
+      /* font-size: 18px; */
+      line-height: 1.6;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    h1 {
+      text-align: center;
+      font-size: 4rem;
+      margin-bottom: 2rem;
+      color: #222;
+    }
+    h2 {
+      margin: 0;
+      font-size: 3.3rem;
+      margin-top: 0.1rem;
+      color: #0b5ed7;
+      text-align: end;
+      margin-right: 1.4rem;
+    }
+    .title {
+      text-align: center;
+    }
+    h3 {
+      margin: 0;
+      font-size: 2.7rem;
+      margin-top: 0.3rem;
+      color: #555;
+      margin-left: 1.5rem;
+    }
+    ul {
+      list-style: none;
+      padding-left: 1rem;
+      margin: 1rem 0;
+    }
+    li {
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    a {
+      flex-grow: 1;
+      /* text-decoration: none; */
+      color: #0066ff;
+      font-size: 2.3rem;
+      background: #e7f1ff;
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+      font-weight: 500;
+    }
+    a:hover {
+      background: #d0e5ff;
+    }
+    button {
+      font-size: 2rem;
+      padding: 1.4rem 2.5rem;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    button:hover {
+      background-color: #bb2d3b;
+    }
+    form {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      background: #fff;
+      padding: 1.8rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="file"] {
+      font-size: 2.3rem;
+      padding: 1rem;
+      border: 1px solid #3700ff;
+      border-radius: 8px;
+    }
+    button[type="submit"] {
+      font-size: 2.3rem;
+      padding: 1rem;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      font-weight: 500;
+    }
+    button[type="submit"]:hover {
+      background-color: #0b5ed7;
+    }
+    #contenido {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      /* background: #fff; */
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.274);
+    }
+  
+  </style>
+</head>
+<body>
+  <h1>Facturas Familiar</h1>
+  <div id="contenido"></div>
+
+  <hr />
+  <h2 class="title">Subir nueva factura</h2>
+<form id="formulario">
+  <input type="text" id="año" placeholder="Año (ej: 2025)" required />
+  <input type="text" id="mes" placeholder="Mes (ej: Junio)" required />
+  <input type="text" id="tipo" placeholder="Tipo de factura (ej: Agua)" required />
+  <input type="file" id="archivo" accept="application/pdf" required />
+  <input type="number" id="pin" placeholder="PIN de seguridad" required />
+  <button type="submit">SUBIR FACTURA</button>
+</form>
+
+
+  <script>
+  // ⚠️ REEMPLAZÁ ESTA URL cuando tengas la de Render:
+  const BACKEND_URL = "https://tu-api-en-render.onrender.com";
+
+  function capitalizarPrimera(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
+  document.getElementById("formulario").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const año = document.getElementById("año").value.trim();
+    let mes = document.getElementById("mes").value.trim();
+    const tipo = document.getElementById("tipo").value.trim();
+    const archivo = document.getElementById("archivo").files[0];
+    const pin = document.getElementById("pin").value.trim();
+
+    if (!año || !mes || !tipo || !archivo) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    mes = capitalizarPrimera(mes);
+
+    const formData = new FormData();
+    formData.append("year", año);
+    formData.append("month", mes);
+    formData.append("tipo", tipo);
+    formData.append("factura", archivo);
+    formData.append("pin", pin);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/subir`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      alert(data.message);
+      location.reload();
+    } catch (error) {
+      alert("Error al subir archivo");
+    }
+  });
+
+  async function cargarFacturas() {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/facturas`);
+      const data = await res.json();
+
+      const container = document.getElementById("contenido");
+      container.innerHTML = "";
+
+      data.forEach(({ year, months }) => {
+        const y = document.createElement("h2");
+        y.textContent = year;
+        container.appendChild(y);
+
+        months.forEach(({ month, files }) => {
+          const m = document.createElement("h3");
+          m.textContent = month;
+          container.appendChild(m);
+
+          const ul = document.createElement("ul");
+
+          files.forEach((file) => {
+            const li = document.createElement("li");
+
+            const a = document.createElement("a");
+            a.href = `${BACKEND_URL}/facturas/${year}/${month}/${file}`;
+            a.download = file;
+            a.textContent = file;
+
+            const btnEliminar = document.createElement("button");
+            btnEliminar.textContent = "Eliminar";
+            btnEliminar.title = `Eliminar ${file}`;
+            btnEliminar.onclick = async () => {
+              if (confirm(`¿Eliminar ${file}?`)) {
+                try {
+                  const res = await fetch(`${BACKEND_URL}/api/facturas`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ year, month, filename: file }),
+                  });
+                  const data = await res.json();
+                  alert(data.message);
+                  location.reload();
+                } catch (error) {
+                  alert("Error al eliminar archivo");
+                }
+              }
+            };
+
+            li.appendChild(a);
+            li.appendChild(btnEliminar);
+            ul.appendChild(li);
+          });
+
+          container.appendChild(ul);
+        });
+      });
+    } catch (error) {
+      console.error("Error al cargar facturas:", error);
+    }
+  }
+
+  cargarFacturas();
+</script>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+<script src="https://tu-api-en-render.onrender.com/socket.io/socket.io.js"></script>
+<script>
+  const socket = io("https://tu-api-en-render.onrender.com");
+
+  socket.on("actualizar", () => {
+    console.log("Actualización recibida. Recargando...");
+    cargarFacturas(); // Recarga sin refrescar la página
+  });
+</script>
+</body>
+</html>
