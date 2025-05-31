@@ -241,12 +241,19 @@
   </script>
 
   <script src="https://backend-facturas.onrender.com/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io(SOCKET_URL);
-    socket.on("actualizar", () => {
-      console.log("Actualización recibida. Recargando...");
-      cargarFacturas();
-    });
-  </script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+  const socket = io("https://backend-facturas.onrender.com");
+
+  socket.on("connect", () => {
+    console.log("🟢 Conectado a Socket.IO");
+  });
+
+  socket.on("actualizar", () => {
+    console.log("🔄 Actualizar facturas");
+    cargarFacturas(); // función que ya deberías tener para refrescar la vista
+  });
+</script>
+
 </body>
 </html>
