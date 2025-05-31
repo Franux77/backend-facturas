@@ -87,20 +87,31 @@ app.delete("/api/facturas", (req, res) => {
   }
 
   const filePath = path.join(FACTURAS_DIR, year, month, filename);
+  const monthPath = path.join(FACTURAS_DIR, year, month);
+  const yearPath = path.join(FACTURAS_DIR, year);
+
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ message: "Archivo no existe" });
   }
 
-  fs.unlinkSync(filePath);
+  fs.unlinkSync(filePath); // eliminar el archivo
 
-  const monthPath = path.join(FACTURAS_DIR, year, month);
+  // Si no quedan archivos en el mes, eliminar la carpeta del mes
   const filesLeft = fs.readdirSync(monthPath);
-  if (filesLeft.length === 0) fs.rmdirSync(monthPath);
+  if (filesLeft.length === 0) {
+    fs.rmdirSync(monthPath);
+
+    // Si no quedan carpetas de meses en el año, eliminar el año
+    const monthsLeft = fs.existsSync(yearPath) ? fs.readdirSync(yearPath) : [];
+    if (monthsLeft.length === 0) {
+      fs.rmdirSync(yearPath);
+    }
+  }
 
   io.emit("actualizar");
-
   res.json({ message: "Archivo eliminado correctamente" });
 });
+
 
 // Socket.io conexión
 io.on("connection", (socket) => {
