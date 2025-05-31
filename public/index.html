@@ -7,19 +7,28 @@
     * {
       box-sizing: border-box;
     }
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      margin: 0;
-      padding: 2.5rem 1.5rem;
-      background-color: #f4f6f9;
-      color: #333;
-      line-height: 1.6;
-    }
+  body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 2.5rem 1.5rem;
+  background: linear-gradient(270deg, #fdfbfb, #c4ffe6, #dfe9f3);
+  background-size: 600% 600%;
+  animation: bgAnimation 15s ease infinite;
+  color: #333;
+  line-height: 1.6;
+}
+
+@keyframes bgAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
     h1 {
       text-align: center;
       font-size: 4rem;
       margin-bottom: 2rem;
-      color: #222;
+      color: #0b5ed7;
     }
     h2 {
       margin: 0;
@@ -117,7 +126,7 @@
   </style>
 </head>
 <body>
-  <h1>Facturas Familiar</h1>
+  <h1>Facturas 2025 <br>Flia. Fernandez</h1>
   <div id="contenido"></div>
 
   <hr />
