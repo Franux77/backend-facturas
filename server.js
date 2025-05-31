@@ -33,7 +33,9 @@ const upload = multer({ storage });
 app.get("/api/facturas", (req, res) => {
   if (!fs.existsSync(FACTURAS_DIR)) return res.json([]);
 
-  const years = fs.readdirSync(FACTURAS_DIR).sort().reverse();
+  const years = fs.readdirSync(FACTURAS_DIR)
+    .filter(item => fs.statSync(path.join(FACTURAS_DIR, item)).isDirectory())
+    .sort().reverse();
 
   const data = years.map((year) => {
     const monthsPath = path.join(FACTURAS_DIR, year);
@@ -45,6 +47,7 @@ app.get("/api/facturas", (req, res) => {
     ];
 
     const months = fs.readdirSync(monthsPath)
+      .filter(item => fs.statSync(path.join(monthsPath, item)).isDirectory())
       .sort((a, b) => MONTH_ORDER.indexOf(b.toLowerCase()) - MONTH_ORDER.indexOf(a.toLowerCase()))
       .map((month) => {
         const filesPath = path.join(monthsPath, month);
@@ -52,12 +55,12 @@ app.get("/api/facturas", (req, res) => {
         return { month, files };
       });
 
-
     return { year, months };
   }).filter(Boolean);
 
   res.json(data);
 });
+
 
 // Subir archivo
 app.post("/api/subir", upload.single("factura"), (req, res) => {
