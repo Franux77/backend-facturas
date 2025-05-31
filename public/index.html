@@ -139,7 +139,7 @@
 
   <script>
   // ⚠️ REEMPLAZÁ ESTA URL cuando tengas la de Render:
-  const BACKEND_URL = "https://facturasfamilia.onrender.com";
+  const BACKEND_URL = "https://backend-facturas.onrender.com";
 
   function capitalizarPrimera(str) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -248,9 +248,9 @@
 
   <script src="/socket.io/socket.io.js"></script>
 
-<script src="https://facturasfamilia.onrender.com/socket.io/socket.io.js"></script>
+<script src="https://backend-facturas.onrender.com/socket.io/socket.io.js"></script>
 <script>
-  const socket = io("https://facturasfamilia.onrender.com");
+  const socket = io("https://backend-facturas.onrender.com");
 
   socket.on("actualizar", () => {
     console.log("Actualización recibida. Recargando...");
