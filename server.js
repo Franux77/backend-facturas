@@ -16,11 +16,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 const PORT = process.env.PORT || 3000;
 const PIN_SECRETO = "172839"; // Cambiá esto si querés
 
-// Google Drive API setup
+// Google Drive API setup desde variable de entorno
 const auth = new google.auth.GoogleAuth({
-  keyFile: "backend-facturas-461600-1114026cde42.json",
+  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT),
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
+
 
 const DRIVE_FOLDER_ID = "1uj0wryzsjDDL2Wm7bYEjsbeCdE-JrZLd";
 
