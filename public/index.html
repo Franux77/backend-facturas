@@ -143,7 +143,6 @@
 
   <script>
     const BACKEND_URL = "https://backend-facturas.onrender.com";
-    const SOCKET_URL = BACKEND_URL;
 
     function capitalizarPrimera(str) {
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -158,7 +157,7 @@
       const archivo = document.getElementById("archivo").files[0];
       const pin = document.getElementById("pin").value.trim();
 
-      if (!año || !mes || !tipo || !archivo) {
+      if (!año || !mes || !tipo || !archivo || !pin) {
         alert("Por favor completa todos los campos");
         return;
       }
@@ -206,24 +205,24 @@
 
             const ul = document.createElement("ul");
 
-            files.forEach((file) => {
+            files.forEach(({ name, id }) => {
               const li = document.createElement("li");
 
               const a = document.createElement("a");
-              a.href = `${BACKEND_URL}/facturas/${year}/${month}/${file}`;
-              a.download = file;
-              a.textContent = file;
+              a.href = `https://drive.google.com/uc?id=${id}&export=download`;
+              a.download = name;
+              a.textContent = name;
 
               const btnEliminar = document.createElement("button");
               btnEliminar.textContent = "Eliminar";
-              btnEliminar.title = `Eliminar ${file}`;
+              btnEliminar.title = `Eliminar ${name}`;
               btnEliminar.onclick = async () => {
-                if (confirm(`¿Eliminar ${file}?`)) {
+                if (confirm(`¿Eliminar ${name}?`)) {
                   try {
                     const res = await fetch(`${BACKEND_URL}/api/facturas`, {
                       method: "DELETE",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ year, month, filename: file }),
+                      body: JSON.stringify({ id }),
                     });
                     const data = await res.json();
                     alert(data.message);
@@ -251,18 +250,18 @@
   </script>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script>
-  const socket = io("https://backend-facturas.onrender.com");
+  <script>
+    const socket = io("https://backend-facturas.onrender.com");
 
-  socket.on("connect", () => {
-    console.log("🟢 Conectado a Socket.IO");
-  });
+    socket.on("connect", () => {
+      console.log("🟢 Conectado a Socket.IO");
+    });
 
-  socket.on("actualizar", () => {
-    console.log("🔄 Actualizar facturas");
-    cargarFacturas(); // función que ya deberías tener para refrescar la vista
-  });
-</script>
+    socket.on("actualizar", () => {
+      console.log("🔄 Actualizar facturas");
+      cargarFacturas();
+    });
+  </script>
 
 </body>
 </html>
